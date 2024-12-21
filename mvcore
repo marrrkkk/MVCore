@@ -1,0 +1,143 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+$command = $argv[1] ?? null;
+
+if (!$command) {
+  echo "Usage: php mvcore <command> [options]\n";
+  exit(1);
+}
+
+switch ($command) {
+  case 'serve':
+    $port = $argv[2] ?? 8000;
+    echo "Starting development server on http://localhost:{$port}\n";
+    shell_exec("php -S localhost:{$port} -t public/");
+    break;
+
+  case 'make:controller':
+    if (!isset($argv[2])) {
+      echo "Error: Controller name required\n";
+      echo "Usage: php mvcore make:controller ControllerName\n";
+      exit(1);
+    }
+
+    $name = $argv[2];
+    $template = <<<PHP
+<?php
+
+namespace App\Controllers;
+
+use App\Core\Controller;
+
+class {$name} extends Controller
+{
+    public function index(): void
+    {
+        return \$this->view('index');
+    }
+}
+PHP;
+
+    if (!is_dir('app/Controllers')) {
+      mkdir('app/Controllers', 0777, true);
+    }
+
+    file_put_contents("app/Controllers/{$name}.php", $template);
+    echo "Controller created successfully: app/Controllers/{$name}.php\n";
+    break;
+
+  case 'make:model':
+    if (!isset($argv[2])) {
+      echo "Error: Model name required\n";
+      echo "Usage: php mvcore make:model ModelName\n";
+      exit(1);
+    }
+
+    $name = $argv[2];
+    $template = <<<PHP
+<?php
+
+namespace App\Models;
+
+use App\Core\Model;
+
+class {$name} extends Model
+{
+    protected string \$table = 'posts';
+
+    protected array \$fillable = [];
+}
+PHP;
+
+    if (!is_dir('app/Models')) {
+      mkdir('app/Models', 0777, true);
+    }
+
+    file_put_contents("app/Models/{$name}.php", $template);
+    echo "Model created successfully: app/Models/{$name}.php\n";
+    break;
+
+  case 'migrate':
+    $direction = $argv[2] ?? 'up';
+    $migrationPath = __DIR__ . '/app/Database/migrations';
+
+    if (!is_dir($migrationPath)) {
+      echo "No migrations directory found.\n";
+      exit(1);
+    }
+
+    $db = new App\Core\Database();
+    $tableName = $argv[3] ?? null;
+    $db->runMigrations($migrationPath, $direction, $tableName);
+    echo "Migrations executed in {$direction} direction.\n";
+    break;
+
+  case 'make:migration':
+    if (!isset($argv[2])) {
+      echo "Error: Migration name required\n";
+      echo "Usage: php mvcore make:migration MigrationName\n";
+      exit(1);
+    }
+
+    $name = $argv[2];
+    $timestamp = date('YmdHis');
+    $filename = "{$timestamp}_{$name}.php";
+    $template = <<<PHP
+<?php
+
+namespace Database\Migrations;
+
+use App\Core\Migration;
+
+class {$name} extends Migration
+{
+    public function up(): void
+    {
+        \$sql = "";
+        \$this->execute(\$sql);
+    }
+
+    public function down(): void
+    {
+        \$this->execute("DROP TABLE IF EXISTS users");
+    }
+}
+PHP;
+
+    $migrationPath = __DIR__ . '/app/Database/migrations';
+
+    if (!is_dir($migrationPath)) {
+      mkdir($migrationPath, 0777, true);
+    }
+
+    file_put_contents("{$migrationPath}/{$filename}", $template);
+    echo "Migration created successfully: {$migrationPath}/{$filename}\n";
+    break;
+
+  default:
+    echo "Unknown command: {$command}\n";
+    exit(1);
+}

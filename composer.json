@@ -1,0 +1,26 @@
+{
+  "name": "marrrkkk/mvcore",
+  "description": "A simple PHP framework for learning purposes.",
+  "type": "project",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Mark",
+      "email": "definitelynotmark13@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.0",
+    "vlucas/phpdotenv": "^5.6"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "process-timeout": 0
+  }
+}
