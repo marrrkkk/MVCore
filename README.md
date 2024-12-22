@@ -74,11 +74,7 @@ MVCore is open-sourced software licensed under the [MIT license](https://opensou
 
 ## Support
 
-For support, please create an issue in the GitHub repository or contact the maintainers.
-
-## Credits
-
-MVCore is created and maintained by [Your Name/Organization].
+For support, please create an issue in the GitHub repository.
 
 ---
 
